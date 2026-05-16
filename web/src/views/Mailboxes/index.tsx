@@ -107,6 +107,17 @@ function apiUrl(path: string) {
   return `${baseUrl}${path}`;
 }
 
+function listAddressLabel(mail: Message, currentFolder: Folder) {
+  if (currentFolder === "sent") {
+    return `发件地址 ${mail.fromEmail}`;
+  }
+  if (currentFolder === "inbox") {
+    return `收件地址 ${parseEmails(mail.toEmails)}`;
+  }
+
+  return mail.direction === "outgoing" ? `发件地址 ${mail.fromEmail}` : `收件地址 ${parseEmails(mail.toEmails)}`;
+}
+
 export default function Mailboxes() {
   const navigate = useNavigate();
   const lastRefreshAt = useRef(0);
@@ -406,7 +417,7 @@ export default function Mailboxes() {
                 <p>{mail.textBody}</p>
                 <div className={styles.mailTags}>
                   <span>{folderLabels[mail.folder]}</span>
-                  <small>{mail.direction === "outgoing" ? parseEmails(mail.toEmails) : mail.fromEmail}</small>
+                  <small>{listAddressLabel(mail, folder)}</small>
                 </div>
               </article>
             ))}
