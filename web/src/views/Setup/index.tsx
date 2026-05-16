@@ -56,6 +56,29 @@ const statusClass: Record<DnsStatus, string> = {
   mismatch: styles.missing,
 };
 
+async function copyToClipboard(text: string) {
+  if (navigator.clipboard?.writeText && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return true;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  textarea.style.top = "0";
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+
+  try {
+    return document.execCommand("copy");
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+
 function normalizeDomain(value: string) {
   return value.trim().toLowerCase().replace(/\.$/, "");
 }
@@ -245,13 +268,17 @@ export default function Setup() {
 
   const handleCopyText = async (text: string, key: string) => {
     try {
-      await navigator.clipboard.writeText(text);
+      const copied = await copyToClipboard(text);
+      if (!copied) {
+        setMessage("复制失败，请手动选中文本复制。");
+        return;
+      }
+      setCopiedKey(key);
+      setMessage("已复制到剪贴板。");
+      window.setTimeout(() => setCopiedKey(""), 1600);
     } catch {
-      // Clipboard permission may be unavailable in some embedded browsers.
+      setMessage("复制失败，请手动选中文本复制。");
     }
-
-    setCopiedKey(key);
-    window.setTimeout(() => setCopiedKey(""), 1600);
   };
 
   const derivedMailHost = getDomainState(domain).isValid ? `mail.${normalizeDomain(domain)}` : "mail.example.com";
