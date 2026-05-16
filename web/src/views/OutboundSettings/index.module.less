@@ -1,0 +1,207 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.panel {
+  width: min(820px, 100%);
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-strong);
+  box-shadow: var(--shadow);
+  backdrop-filter: var(--blur);
+}
+
+.header,
+.footer,
+.modeSwitch,
+.testBox {
+  display: flex;
+  align-items: center;
+}
+
+.header,
+.footer {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.eyebrow {
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 760;
+}
+
+.header h1 {
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: 24px;
+}
+
+.backLink,
+.modeSwitch button,
+.testBox button,
+.footer button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.backLink {
+  padding: 0 10px;
+  color: var(--muted);
+}
+
+.modeSwitch {
+  width: fit-content;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-muted);
+}
+
+.modeSwitch button {
+  min-width: 96px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+}
+
+.modeSwitch .active {
+  background: #fff;
+  color: var(--teal);
+  box-shadow: 0 1px 3px rgba(35, 43, 54, 0.08);
+}
+
+.section {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-muted);
+}
+
+.section h2 {
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.section p,
+.message {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.formGrid label {
+  display: grid;
+  gap: 6px;
+}
+.testBox label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  input {
+    flex: 1;
+  }
+}
+
+.formGrid span,
+.testBox span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 720;
+}
+
+.formGrid input,
+.testBox input {
+  min-width: 0;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  outline: 0;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--ink);
+}
+
+.checkLine {
+  display: flex !important;
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkLine input {
+  width: 16px;
+  height: 16px;
+}
+
+.testBox {
+  gap: 10px;
+}
+
+.testBox label {
+  flex: 1;
+}
+
+.testBox button,
+.footer button {
+  padding: 0 13px;
+}
+
+.footer button {
+  border-color: #1f2b35;
+  background: #1f2b35;
+  color: #fff;
+}
+
+.testBox button:disabled,
+.footer button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@media (max-width: 680px) {
+  .page {
+    padding: 10px;
+  }
+
+  .header,
+  .testBox,
+  .footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .modeSwitch,
+  .backLink,
+  .testBox button,
+  .footer button {
+    width: 100%;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}

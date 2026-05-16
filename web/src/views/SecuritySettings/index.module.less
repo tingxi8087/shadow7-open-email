@@ -1,0 +1,115 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.panel {
+  width: min(620px, 100%);
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-strong);
+  box-shadow: var(--shadow);
+}
+
+.header,
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.eyebrow {
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 760;
+}
+
+.header h1 {
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: 24px;
+}
+
+.backLink,
+.footer button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.form {
+  display: grid;
+  gap: 12px;
+}
+
+.form label {
+  display: grid;
+  gap: 6px;
+}
+
+.form span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 720;
+}
+
+.form input {
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  outline: 0;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--ink);
+}
+
+.message {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.footer {
+  justify-content: flex-end;
+}
+
+.footer button {
+  border-color: #1f2b35;
+  background: #1f2b35;
+  color: #fff;
+}
+
+.footer button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@media (max-width: 620px) {
+  .page {
+    padding: 10px;
+  }
+
+  .header,
+  .footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .backLink,
+  .footer button {
+    width: 100%;
+  }
+}

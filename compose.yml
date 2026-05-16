@@ -1,0 +1,26 @@
+services:
+  shadow7-open-email:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: shadow7-open-email:local
+    container_name: shadow7-open-email
+    restart: unless-stopped
+    environment:
+      HOST: ${HOST:-0.0.0.0}
+      PORT: ${PORT:-5160}
+      DATABASE_PATH: ${DATABASE_PATH:-/app/data/shadow7-mail.sqlite}
+      WEB_DIST_PATH: ${WEB_DIST_PATH:-/app/web/dist}
+      ATTACHMENT_DIR: ${ATTACHMENT_DIR:-/app/data/attachments}
+      PUBLIC_HOST: ${PUBLIC_HOST:-}
+      SMTP_INBOUND_HOST: ${SMTP_INBOUND_HOST:-0.0.0.0}
+      SMTP_INBOUND_PORT: ${SMTP_INBOUND_PORT:-25}
+      SMTP_INBOUND_ENABLED: ${SMTP_INBOUND_ENABLED:-true}
+      SMTP_INBOUND_MAX_BYTES: ${SMTP_INBOUND_MAX_BYTES:-10485760}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "5160:5160"
+      - "25:25"
+    volumes:
+      - ./data:/app/data

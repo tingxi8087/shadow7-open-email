@@ -1,0 +1,208 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.composer {
+  width: min(920px, 100%);
+  min-height: calc(100vh - 48px);
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-strong);
+  box-shadow: var(--shadow);
+  backdrop-filter: var(--blur);
+}
+
+.header,
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px;
+}
+
+.header {
+  border-bottom: 1px solid var(--line);
+}
+
+.eyebrow {
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 760;
+  letter-spacing: 0;
+}
+
+.header h1 {
+  margin-top: 3px;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.backLink,
+.secondaryButton,
+.sendButton,
+.formatBar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--ink);
+  font-weight: 760;
+}
+
+.backLink {
+  height: 32px;
+  padding: 0 10px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.fields {
+  display: grid;
+  padding: 8px 18px 0;
+}
+
+.fields label {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: center;
+  min-height: 42px;
+  border-bottom: 1px solid var(--line);
+}
+
+.fields span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 720;
+}
+
+.fields input {
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+}
+
+.senderField {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.senderField strong {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 760;
+  white-space: nowrap;
+}
+
+.fields input::placeholder,
+.editor textarea::placeholder {
+  color: var(--soft);
+}
+
+.editor {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 360px;
+  padding: 14px 18px 0;
+}
+
+.formatBar {
+  display: flex;
+  gap: 6px;
+  padding-bottom: 10px;
+}
+
+.formatBar button {
+  width: 30px;
+  height: 28px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.editor textarea {
+  width: 100%;
+  min-height: 100%;
+  resize: none;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #303945;
+  font-size: 14px;
+  line-height: 1.76;
+}
+
+.footer {
+  border-top: 1px solid var(--line);
+  color: var(--soft);
+  font-size: 12px;
+}
+
+.footer div {
+  display: flex;
+  gap: 8px;
+}
+
+.secondaryButton,
+.sendButton {
+  height: 34px;
+  padding: 0 13px;
+  font-size: 13px;
+}
+
+.sendButton {
+  border-color: #1f2b35;
+  background: #1f2b35;
+  color: #fff;
+}
+
+.sendButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+@media (max-width: 620px) {
+  .page {
+    padding: 10px;
+  }
+
+  .composer {
+    min-height: calc(100vh - 20px);
+  }
+
+  .header,
+  .footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .footer div,
+  .backLink,
+  .secondaryButton,
+  .sendButton {
+    width: 100%;
+  }
+
+  .fields label {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 9px 0;
+  }
+
+  .senderField {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}

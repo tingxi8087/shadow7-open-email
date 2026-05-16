@@ -1,0 +1,97 @@
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.panel {
+  width: min(860px, 100%);
+  display: grid;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-strong);
+  box-shadow: var(--shadow);
+  backdrop-filter: var(--blur);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.eyebrow {
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 760;
+}
+
+.header h1 {
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: 24px;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.76);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 760;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.card {
+  display: grid;
+  gap: 8px;
+  min-height: 118px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-muted);
+}
+
+.card strong {
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.card span {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 10px;
+  }
+
+  .header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .backLink {
+    width: 100%;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

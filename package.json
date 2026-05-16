@@ -1,0 +1,15 @@
+{
+  "name": "shadow7-open-email",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently -k -n server,web -c blue,green \"npm --prefix server run start\" \"npm --prefix web run dev -- --host 127.0.0.1\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
