@@ -38,9 +38,13 @@ const statements = [
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     message_id TEXT,
     from_email TEXT NOT NULL,
+    from_name TEXT,
     to_emails TEXT NOT NULL DEFAULT '[]',
     cc_emails TEXT NOT NULL DEFAULT '[]',
     bcc_emails TEXT NOT NULL DEFAULT '[]',
+    to_contacts TEXT NOT NULL DEFAULT '[]',
+    cc_contacts TEXT NOT NULL DEFAULT '[]',
+    bcc_contacts TEXT NOT NULL DEFAULT '[]',
     subject TEXT NOT NULL DEFAULT '',
     text_body TEXT,
     html_body TEXT,
@@ -96,6 +100,18 @@ export function migrate(sqlite: SqliteClient) {
 
     if (!hasColumn(sqlite, "messages", "raw_source")) {
       sqlite.run("ALTER TABLE messages ADD COLUMN raw_source TEXT");
+    }
+    if (!hasColumn(sqlite, "messages", "from_name")) {
+      sqlite.run("ALTER TABLE messages ADD COLUMN from_name TEXT");
+    }
+    if (!hasColumn(sqlite, "messages", "to_contacts")) {
+      sqlite.run("ALTER TABLE messages ADD COLUMN to_contacts TEXT NOT NULL DEFAULT '[]'");
+    }
+    if (!hasColumn(sqlite, "messages", "cc_contacts")) {
+      sqlite.run("ALTER TABLE messages ADD COLUMN cc_contacts TEXT NOT NULL DEFAULT '[]'");
+    }
+    if (!hasColumn(sqlite, "messages", "bcc_contacts")) {
+      sqlite.run("ALTER TABLE messages ADD COLUMN bcc_contacts TEXT NOT NULL DEFAULT '[]'");
     }
   });
 

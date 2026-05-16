@@ -10,7 +10,13 @@ type Filter = "all" | "unread" | "starred" | "attachments";
 type Message = {
   id: number;
   fromEmail: string;
+  fromName: string | null;
   toEmails: string;
+  ccEmails: string;
+  bccEmails: string;
+  toContacts: string;
+  ccContacts: string;
+  bccContacts: string;
   subject: string;
   textBody: string | null;
   htmlBody: string | null;
@@ -22,6 +28,11 @@ type Message = {
   sentAt: string | null;
   receivedAt: string | null;
   createdAt: string;
+};
+
+type MailContact = {
+  name: string;
+  email: string;
 };
 
 type ListResponse = {
@@ -57,6 +68,7 @@ type SystemStatus = {
   smtpInboundEnabled: boolean;
   outboundMode: "direct" | "smtp";
   outboundStatus: "configured" | "incomplete";
+  senderDisplayName: string;
   unreadCount: number;
 };
 
@@ -83,13 +95,53 @@ function formatTime(message: Message) {
   }).format(new Date(value));
 }
 
-function parseEmails(value: string) {
+function parseContacts(value: string, fallbackEmails: string): MailContact[] {
   try {
     const parsed = JSON.parse(value);
-    return Array.isArray(parsed) ? parsed.join(", ") : value;
+    if (Array.isArray(parsed)) {
+      const contacts = parsed
+        .map((item) => ({
+          name: typeof item?.name === "string" ? item.name : "",
+          email: typeof item?.email === "string" ? item.email : "",
+        }))
+        .filter((item) => item.email);
+      if (contacts.length) {
+        return contacts;
+      }
+    }
   } catch {
-    return value;
+    // Fall back to legacy email-only fields below.
   }
+
+  try {
+    const emails = JSON.parse(fallbackEmails);
+    if (Array.isArray(emails)) {
+      return emails.filter(Boolean).map((email) => ({ name: "", email: String(email) }));
+    }
+  } catch {
+    return fallbackEmails ? [{ name: "", email: fallbackEmails }] : [];
+  }
+
+  return [];
+}
+
+function formatContact(contact: MailContact) {
+  return contact.name ? `${contact.name} <${contact.email}>` : contact.email;
+}
+
+function formatContacts(contacts: MailContact[]) {
+  return contacts.map(formatContact).join(", ");
+}
+
+function fromContact(mail: Message): MailContact {
+  return {
+    name: mail.fromName || "",
+    email: mail.fromEmail,
+  };
+}
+
+function toContacts(mail: Message) {
+  return parseContacts(mail.toContacts, mail.toEmails);
 }
 
 function formatSize(size: number) {
@@ -105,17 +157,6 @@ function formatSize(size: number) {
 function apiUrl(path: string) {
   const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
   return `${baseUrl}${path}`;
-}
-
-function listAddressLabel(mail: Message, currentFolder: Folder) {
-  if (currentFolder === "sent") {
-    return `发件地址 ${mail.fromEmail}`;
-  }
-  if (currentFolder === "inbox") {
-    return `收件地址 ${parseEmails(mail.toEmails)}`;
-  }
-
-  return mail.direction === "outgoing" ? `发件地址 ${mail.fromEmail}` : `收件地址 ${parseEmails(mail.toEmails)}`;
 }
 
 export default function Mailboxes() {
@@ -151,6 +192,7 @@ export default function Mailboxes() {
     smtpInboundEnabled: true,
     outboundMode: "direct",
     outboundStatus: "configured",
+    senderDisplayName: "",
     unreadCount: 0,
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -393,34 +435,40 @@ export default function Mailboxes() {
         <div className={styles.mailShell}>
           <section className={styles.mailList} aria-label="邮件列表">
             {!isLoading && !messages.length && <div className={styles.empty}>没有符合条件的邮件</div>}
-            {messages.map((mail) => (
-              <article
-                className={`${styles.mailRow} ${mail.id === selectedId ? styles.mailSelected : ""}`}
-                key={mail.id}
-                onClick={() => {
-                  setSelectedId(mail.id);
-                  if (!mail.isRead) {
-                    patchMessage(mail.id, { isRead: true });
-                  }
-                }}
-              >
-                <div className={styles.mailMeta}>
-                  <span className={!mail.isRead ? styles.unreadDot : styles.readDot} />
-                  <strong>{mail.direction === "outgoing" ? "我" : mail.fromEmail}</strong>
-                  <time>{formatTime(mail)}</time>
-                </div>
-                <div className={styles.mailSubject}>
-                  <span>{mail.subject}</span>
-                  {mail.isStarred && <i aria-label="已加星标">★</i>}
-                  {mail.hasAttachments && <em aria-label="带附件">⌘</em>}
-                </div>
-                <p>{mail.textBody}</p>
-                <div className={styles.mailTags}>
-                  <span>{folderLabels[mail.folder]}</span>
-                  <small>{listAddressLabel(mail, folder)}</small>
-                </div>
-              </article>
-            ))}
+            {messages.map((mail) => {
+              const sender = formatContact(fromContact(mail));
+              const recipients = formatContacts(toContacts(mail));
+
+              return (
+                <article
+                  className={`${styles.mailRow} ${mail.id === selectedId ? styles.mailSelected : ""}`}
+                  key={mail.id}
+                  onClick={() => {
+                    setSelectedId(mail.id);
+                    if (!mail.isRead) {
+                      patchMessage(mail.id, { isRead: true });
+                    }
+                  }}
+                >
+                  <div className={styles.mailMeta}>
+                    <span className={!mail.isRead ? styles.unreadDot : styles.readDot} />
+                    <strong>{sender}</strong>
+                    <time>{formatTime(mail)}</time>
+                  </div>
+                  <div className={styles.mailSubject}>
+                    <span>{mail.subject}</span>
+                    {mail.isStarred && <i aria-label="已加星标">★</i>}
+                    {mail.hasAttachments && <em aria-label="带附件">⌘</em>}
+                  </div>
+                  <p>{mail.textBody}</p>
+                  <div className={styles.mailTags}>
+                    <span>{folderLabels[mail.folder]}</span>
+                    <small>发件人 {sender}</small>
+                    {recipients && <small>收件人 {recipients}</small>}
+                  </div>
+                </article>
+              );
+            })}
           </section>
 
           <aside className={styles.preview} aria-label="邮件预览">
@@ -455,14 +503,16 @@ export default function Mailboxes() {
                 </div>
                 <h2>{selectedMail.subject}</h2>
                 <div className={styles.senderLine}>
-                  <span>{(selectedMail.direction === "outgoing" ? "我" : selectedMail.fromEmail).slice(0, 1)}</span>
+                  <span>{formatContact(fromContact(selectedMail)).slice(0, 1).toUpperCase()}</span>
                   <div>
-                    <strong>{selectedMail.direction === "outgoing" ? "我" : selectedMail.fromEmail}</strong>
-                    <small>
-                      {selectedMail.direction === "outgoing"
-                        ? `发给 ${parseEmails(selectedMail.toEmails)}`
-                        : selectedMail.fromEmail}
-                    </small>
+                    <strong>发件人 {formatContact(fromContact(selectedMail))}</strong>
+                    <small>收件人 {formatContacts(toContacts(selectedMail)) || "-"}</small>
+                    {formatContacts(parseContacts(selectedMail.ccContacts, selectedMail.ccEmails)) && (
+                      <small>抄送 {formatContacts(parseContacts(selectedMail.ccContacts, selectedMail.ccEmails))}</small>
+                    )}
+                    {formatContacts(parseContacts(selectedMail.bccContacts, selectedMail.bccEmails)) && (
+                      <small>密送 {formatContacts(parseContacts(selectedMail.bccContacts, selectedMail.bccEmails))}</small>
+                    )}
                   </div>
                   <time>{formatTime(selectedMail)}</time>
                 </div>

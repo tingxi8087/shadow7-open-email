@@ -7,6 +7,11 @@ import type { DbClient } from "../db/client";
 import { createAttachment } from "../repositories/messages";
 import { createIncomingMessage, getPrimaryDomain } from "./repository";
 
+type MailContact = {
+  name: string;
+  email: string;
+};
+
 type Logger = {
   info: (payload: unknown, message?: string) => void;
   warn: (payload: unknown, message?: string) => void;
@@ -83,12 +88,26 @@ function collectStream(stream: Readable & { sizeExceeded?: boolean }, maxBytes: 
 }
 
 function addressesFromObject(value?: ParsedMailAddressObject | ParsedMailAddressObject[]) {
+  return contactsFromObject(value).map((contact) => contact.email);
+}
+
+function contactsFromObject(value?: ParsedMailAddressObject | ParsedMailAddressObject[]) {
   const objects = Array.isArray(value) ? value : value ? [value] : [];
 
   return objects.flatMap((object) =>
     (object.value ?? [])
-      .map((address) => address.address?.trim())
-      .filter((address): address is string => Boolean(address)),
+      .map((address): MailContact | null => {
+        const email = address.address?.trim().toLowerCase();
+        if (!email) {
+          return null;
+        }
+
+        return {
+          name: address.name?.replace(/[\r\n]+/g, " ").trim() ?? "",
+          email,
+        };
+      })
+      .filter((address): address is MailContact => Boolean(address)),
   );
 }
 
@@ -199,23 +218,31 @@ export class InboundSmtpService {
     const rawSource = rawBuffer.toString("utf8");
     const parsed = await simpleParser(rawBuffer);
     const now = new Date().toISOString();
-    const fromEmail = addressesFromObject(parsed.from)[0] ?? normalizeEmail(session.envelope.mailFrom?.address ?? "");
+    const fromContact = contactsFromObject(parsed.from)[0];
+    const fromEmail = fromContact?.email ?? normalizeEmail(session.envelope.mailFrom?.address ?? "");
 
     if (!fromEmail) {
       throw smtpError("Sender is missing", 550);
     }
 
-    const toEmails = addressesFromObject(parsed.to);
-    const ccEmails = addressesFromObject(parsed.cc);
-    const bccEmails = addressesFromObject(parsed.bcc);
+    const toContacts = contactsFromObject(parsed.to);
+    const ccContacts = contactsFromObject(parsed.cc);
+    const bccContacts = contactsFromObject(parsed.bcc);
+    const toEmails = toContacts.map((contact) => contact.email);
+    const ccEmails = ccContacts.map((contact) => contact.email);
+    const bccEmails = bccContacts.map((contact) => contact.email);
     const messageId = parsed.messageId || `incoming-${crypto.randomUUID()}`;
 
     const message = await createIncomingMessage(this.db, {
       messageId,
       fromEmail,
+      fromName: fromContact?.name || null,
       toEmails: JSON.stringify(toEmails.length ? toEmails : acceptedRecipients),
       ccEmails: JSON.stringify(ccEmails),
       bccEmails: JSON.stringify(bccEmails),
+      toContacts: JSON.stringify(toContacts.length ? toContacts : acceptedRecipients.map((email) => ({ name: "", email }))),
+      ccContacts: JSON.stringify(ccContacts),
+      bccContacts: JSON.stringify(bccContacts),
       subject: parsed.subject ?? "",
       textBody: parsed.text,
       htmlBody: typeof parsed.html === "string" ? parsed.html : undefined,

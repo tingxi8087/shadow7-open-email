@@ -105,6 +105,37 @@ export async function createAttachment(
   return attachment;
 }
 
+function parseContacts(value: string | null | undefined) {
+  if (!value) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function getMessageContacts(db: DbClient, id: number) {
+  const message = await getMessage(db, id);
+  if (!message) {
+    return null;
+  }
+
+  return {
+    message,
+    fromContact: {
+      name: message.fromName ?? "",
+      email: message.fromEmail,
+    },
+    toContacts: parseContacts(message.toContacts),
+    ccContacts: parseContacts(message.ccContacts),
+    bccContacts: parseContacts(message.bccContacts),
+  };
+}
+
 export async function updateMessage(db: DbClient, id: number, input: UpdateMessageInput) {
   const patch: Partial<Pick<Message, "isRead" | "isStarred" | "folder" | "updatedAt">> = {
     updatedAt: new Date().toISOString(),

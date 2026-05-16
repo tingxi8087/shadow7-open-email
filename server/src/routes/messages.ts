@@ -34,6 +34,11 @@ type SendBody = {
   textBody?: string;
 };
 
+type MailContact = {
+  name: string;
+  email: string;
+};
+
 type UpdateBody = {
   isRead?: boolean;
   isStarred?: boolean;
@@ -57,6 +62,13 @@ function isValidLocalPart(value: string) {
 
 function sanitizeDisplayName(value: string) {
   return value.replace(/[\r\n]+/g, " ").trim().slice(0, 80);
+}
+
+function contactsFromEmails(emails: string[]): MailContact[] {
+  return emails.map((email) => ({
+    name: "",
+    email,
+  }));
 }
 
 export const messageRoutes: FastifyPluginAsync = async (app) => {
@@ -204,9 +216,13 @@ export const messageRoutes: FastifyPluginAsync = async (app) => {
     const message = await createSentMessage(app.db, {
       messageId,
       fromEmail,
+      fromName: fromName || null,
       toEmails: JSON.stringify(to),
       ccEmails: JSON.stringify(cc),
       bccEmails: JSON.stringify(bcc),
+      toContacts: JSON.stringify(contactsFromEmails(to)),
+      ccContacts: JSON.stringify(contactsFromEmails(cc)),
+      bccContacts: JSON.stringify(contactsFromEmails(bcc)),
       subject,
       textBody,
       rawSource,
